@@ -35,13 +35,6 @@ services:
     image: redis:4.0-alpine
     ports:
       - 6379:6379
-  yarn:
-    build:
-      context: .
-      dockerfile: docker/yarn/Dockerfile
-    volumes:
-      - .:/app
-      - node-modules-volume:/app/node_modules
   kong:
     build:
       context: .
@@ -82,6 +75,32 @@ services:
     command: ["start", "--kong-url", "http://kong:8001"]
     depends_on:
       - kong
+  nuxt:
+    build:
+      context: .
+      dockerfile: docker/yarn/Dockerfile
+    environment:
+      HOST: "0.0.0.0"
+    ports:
+      - 3030:3000
+    command: ["run", "dev"]
+    volumes:
+      - .:/app
+      - node-modules-volume:/app/node_modules
+  yarn:
+    build:
+      context: .
+      dockerfile: docker/yarn/Dockerfile
+    volumes:
+      - .:/app
+      - node-modules-volume:/app/node_modules
+  vue:
+    build:
+      context: .
+      dockerfile: docker/vue/Dockerfile
+    volumes:
+      - .:/app
+      - node-modules-volume:/app/node_modules
 
 volumes:
   bundle-volume:
