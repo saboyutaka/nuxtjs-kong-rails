@@ -1,6 +1,7 @@
 version: '3'
 services:
   ruby:
+    container_name: nkr_ruby
     build:
       context: .
       dockerfile: docker/ruby/Dockerfile
