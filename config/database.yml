@@ -1,0 +1,22 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  host: <%= ENV.fetch("DATABASE_HOST") { db } %>
+  username: <%= ENV.fetch("DATABASE_USERNAME") { poostgres } %>
+  password: <%= ENV.fetch("DATABASE_PASSWORD") { '' } %>
+  port: <%= ENV.fetch("DATABASE_PORT") { 5432 } %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: nkr_development
+
+test:
+  <<: *default
+  database: nkr_test
+
+production:
+  <<: *default
+  database: nkr_production
+  username: app
+  password: <%= ENV['APP_DATABASE_PASSWORD'] %>
