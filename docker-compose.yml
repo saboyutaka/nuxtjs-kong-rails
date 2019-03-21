@@ -85,21 +85,21 @@ services:
       - 3030:3000
     command: ["run", "dev"]
     volumes:
-      - .:/app
+      - ./nuxt:/app
       - node-modules-volume:/app/node_modules
   yarn:
     build:
       context: .
       dockerfile: docker/yarn/Dockerfile
     volumes:
-      - .:/app
+      - ./nuxt:/app
       - node-modules-volume:/app/node_modules
   vue:
     build:
       context: .
       dockerfile: docker/vue/Dockerfile
     volumes:
-      - .:/app
+      - ./nuxt:/app
       - node-modules-volume:/app/node_modules
 
 volumes:
