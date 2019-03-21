@@ -1,7 +1,8 @@
 .DEFAULT_GOAL := help
 
 build: ## build develoment environment
-	docker-compose run --rm web bundle install
+	docker-compose run --rm ruby bundle install
+	docker-compose run --rm kong kong migrations bootstrap
 	docker-compose run --rm yarn install
 	docker-compose run --rm yarn run dev
 

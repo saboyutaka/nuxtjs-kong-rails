@@ -31,6 +31,10 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db-volume:/var/lib/postgresql/data
+  redis:
+    image: redis:4.0-alpine
+    ports:
+      - 6379:6379
   yarn:
     build:
       context: .
@@ -38,12 +42,49 @@ services:
     volumes:
       - .:/app
       - node-modules-volume:/app/node_modules
-  redis:
-    image: redis:4.0-alpine
+  kong:
+    build:
+      context: .
+      dockerfile: docker/kong/Dockerfile
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-postgres
+      KONG_PROXY_ACCESS_LOG: "/dev/stdout"
+      KONG_ADMIN_ACCESS_LOG: "/dev/stdout"
+      KONG_PROXY_ERROR_LOG: "/dev/stderr"
+      KONG_ADMIN_ERROR_LOG: "/dev/stderr"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_ADMIN_LISTEN_SSL: "0.0.0.0:8444"
     ports:
-      - 6379:6379
+      - 8000:8000
+      - 8443:8443
+      - 8001:8001
+      - 7946:7946
+      - 7946:7946/udp
+    volumes:
+      - ./docker/kong:/opt/scripts
+    command: ["sh", "/opt/scripts/wait-for-postgres.sh", "kong-postgres", "5432", "kong", "--", "kong", "start", "--vv"]
+    depends_on:
+      - kong-postgres
+  kong-postgres:
+    image: postgres:9.5
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_DB: kong
+    ports:
+      - 15432:5432
+    volumes:
+      - kong-postgres-volume:/var/lib/postgresql/data
+  kong-dashboard:
+    image: pgbi/kong-dashboard:v3.5.0
+    ports:
+      - 8080:8080
+    command: ["start", "--kong-url", "http://kong:8001"]
+    depends_on:
+      - kong
 
 volumes:
   bundle-volume:
   db-volume:
   node-modules-volume:
+  kong-postgres-volume:
