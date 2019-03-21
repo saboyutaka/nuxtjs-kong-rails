@@ -1,0 +1,48 @@
+version: '3'
+services:
+  ruby:
+    build:
+      context: .
+      dockerfile: docker/ruby/Dockerfile
+    command: /bin/sh -c "rm -f /app/tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - .:/app
+      - bundle-volume:/usr/local/bundle
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+      - redis
+    tty: true
+    stdin_open: true
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_PORT: 5432
+  postgres:
+    image: postgres:10-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: nkr_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db-volume:/var/lib/postgresql/data
+  yarn:
+    build:
+      context: .
+      dockerfile: docker/yarn/Dockerfile
+    volumes:
+      - .:/app
+      - node-modules-volume:/app/node_modules
+  redis:
+    image: redis:4.0-alpine
+    ports:
+      - 6379:6379
+
+volumes:
+  bundle-volume:
+  db-volume:
+  node-modules-volume:
