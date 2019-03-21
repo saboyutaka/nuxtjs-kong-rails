@@ -2,11 +2,12 @@
 
 build: ## build develoment environment
 	docker-compose run --rm ruby bundle install
-	docker-compose run --rm kong kong migrations bootstrap
 	docker-compose run --rm yarn install
-	docker-compose run --rm yarn run dev
 
-serve: up attach ## Run Serve
+serve:
+	docker-compose up -d ruby kong nuxt kong-dashboard
+
+rails: up attach ## Run Serve
 
 up: ## Run web container
 	docker-compose up -d ruby
@@ -20,14 +21,14 @@ bundle: ## Run bundle install
 attach: ## Attach running web container for binding.pry
 	docker attach `docker ps -f name=nkr_ruby -f status=running --format "{{.ID}}"`
 
-yarn_install: ## Run yarn install
+yarn-install: ## Run yarn install
 	docker-compose run --rm yarn install
 
-yarn_dev: ## Run yarn run dev
+yarn-dev: ## Run yarn run dev
 	docker-compose run --rm yarn run dev
 
-yarn_watch: ## Run yarn watch
-	docker-compose run --rm yarn run watch
+yarn-build: ## Run yarn build
+	docker-compose run --rm yarn run build
 
 .PHONY: help
 help:
